@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from models import TransactionBase, TransactionType
 from database import get_db
+from logic import calculate_balance
 
 router = APIRouter()
 
@@ -32,6 +33,13 @@ def get_transaction(transaction_id: int, db: Session = Depends(get_db)):
     return transaction
 
 
+# READ ALL FROM USER
+@router.get("/user/{user_id}/transactions")
+def get_user_transactions(user_id: int, db: Session = Depends(get_db)):
+    transactions = db.query(TransactionBase).filter(TransactionBase.user_id == user_id).all()
+    return transactions
+
+
 # UPDATE
 @router.put("/{transaction_id}")
 def update_transaction(transaction_id: int, title: str, amount: float, type: TransactionType, db: Session = Depends(get_db)):
@@ -60,3 +68,10 @@ def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
     db.delete(transaction)
     db.commit()
     return {"message": "Transaction deleted"}
+
+
+# CALCULATE BALANCE
+@router.get("/user/{user_id}/balance")
+def get_user_balance(user_id: int, db: Session = Depends(get_db)):
+    balance = calculate_balance(db, user_id)
+    return {"balance": balance}
