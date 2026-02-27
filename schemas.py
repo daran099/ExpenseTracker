@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from models import TransactionType
 
 class UserCreate(BaseModel):
@@ -23,16 +23,15 @@ class UserResponse(BaseModel):
 
 class TransactionCreate(BaseModel):
     title: str
-    amount: float
+    amount: float = Field(gt=0)
     type: TransactionType
     user_id: int
 
 
 class TransactionUpdate(BaseModel):
     title: Optional[str] = None
-    amount: Optional[float] = None
+    amount: Optional[float] = Field(default=None, gt=0)
     type: Optional[TransactionType] = None
-    user_id: Optional[int] = None
 
 
 class TransactionResponse(BaseModel):
@@ -44,3 +43,7 @@ class TransactionResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class BalanceResponse(BaseModel):
+    balance: float
